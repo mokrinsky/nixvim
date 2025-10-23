@@ -36,6 +36,11 @@ lib.nixvim.plugins.mkNeovimPlugin {
       inherit (lib.nixvim) defaultNullOpts;
     in
     {
+      devFallback = defaultNullOpts.mkBool false ''
+        When true, a local plugin directory will be used instead.
+        See config.dev
+      '';
+
       plugins =
         let
           inherit (lib) mkOption types;
@@ -131,6 +136,8 @@ lib.nixvim.plugins.mkNeovimPlugin {
                   The table will be passed to the Plugin.config() function.
                   Setting this value will imply Plugin.config()
                 '';
+
+                import = mkNullOrOption str "Import the given spec module.";
               };
             });
 
@@ -198,6 +205,7 @@ lib.nixvim.plugins.mkNeovimPlugin {
                 opts
                 priority
                 submodules
+                import
                 ;
 
               dependencies = lib.nixvim.ifNonNull' plugin.dependencies (
@@ -221,7 +229,7 @@ lib.nixvim.plugins.mkNeovimPlugin {
         dev = {
           path = lazyPath;
           patterns = [ "." ];
-          fallback = false;
+          fallback = cfg.devFallback;
         };
         spec = packedPlugins;
       };
